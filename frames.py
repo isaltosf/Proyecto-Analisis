@@ -21,7 +21,8 @@ class AppMatriculas:
         self.frame_manual = None
         self.frame_archivos = None
         self.pagina_actual = None
-        self.archivos_seleccionados = []
+        self.archivos_seleccionados = [] #lista de los archivos
+        self.matricula_guardada = ""
         
         #Se llama a la función que dibuja los botones y textos
         self.frame_inicio = self.crear_pagina_inicio()
@@ -48,6 +49,7 @@ class AppMatriculas:
         
         frame_destino.pack(fill="both", expand=True) # Mostrar nueva
         self.pagina_actual = frame_destino
+    
     
     #Interfaz
     def configurar_estilos(self):
@@ -156,10 +158,13 @@ class AppMatriculas:
         self.lista_archivos.delete(0, tk.END)
 
     def procesar_manual(self):
-        dato = self.entry_manual.get()
+        dato = self.entry_manual.get().strip()
         if dato:
+            self.matricula_guardada = dato
             self.enviar_backend("manual", dato)
             messagebox.showinfo("OK", f"Enviado: {dato}")
+        else:
+            messagebox.showwarning("Atención", "El campo de matricula esta vacío")
 
     def procesar_archivos(self):
         if self.archivos_seleccionados:
