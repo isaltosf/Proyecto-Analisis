@@ -6,121 +6,170 @@ class AppMatriculas:
     def __init__(self,root):
         self.root = root  #Self sirve para poder modificar la ventana creada en cualquier función
         self.root.title("Gestor de matriculas")
-        self.root.geometry("500x450")
+        self.root.geometry("400x350")
+        self.root.resizable(False,False)
+        self.root.configure(bg="#f0f4f8")
         
+        self.configurar_estilos()
+        #intercambio de pantallas
+        self.contenedor= tk.Frame(self.root, bg="#f0f4f8")
+        self.contenedor.pack(fill= "both", expand=True, padx=15, pady=15)
         #Variable para almacenar los archivos seleccionados
         #usamos self para que la lista sobreviva durante toda la ejecución sin depender solo de la función
         
+        self.frame_inicio = None
+        self.frame_manual = None
+        self.frame_archivos = None
+        self.pagina_actual = None
         self.archivos_seleccionados = []
         
         #Se llama a la función que dibuja los botones y textos
-        self.crear_widgets()
+        self.frame_inicio = self.crear_pagina_inicio()
+        self.frame_manual = self.crear_pagina_manual()
+        self.frame_archivos = self.crear_pagina_archivos()
         
+        
+        self.ir_a_inicio()       
+    
+    
+    def ir_a_inicio(self):
+        self.mostrar_pagina(self.frame_inicio)
+
+    def ir_a_manual(self):
+        self.mostrar_pagina(self.frame_manual)
+
+    def ir_a_archivos(self):
+        self.mostrar_pagina(self.frame_archivos)
+
+    def mostrar_pagina(self, frame_destino):
+        """ Oculta la página actual y muestra la nueva """
+        if self.pagina_actual is not None:
+            self.pagina_actual.pack_forget() # Ocultar anterior
+        
+        frame_destino.pack(fill="both", expand=True) # Mostrar nueva
+        self.pagina_actual = frame_destino
+    
     #Interfaz
-    def crear_widgets(self):
-        #--Entrada Manual--
-        #Ayudará a ajustar el recuadro con el titulo
-        frame_manual = ttk.LabelFrame(self.root, text= "Entrada Manual ", padding = 10)
-        frame_manual.pack(fill = "x", padx = 15, pady= 18) #organiza los elementos en la ventana
+    def configurar_estilos(self):
+        style = ttk.Style()
+        style.theme_use('clam')
         
-        lbl_instruccion = ttk.Label(frame_manual, text= "Ingrese una matricula")
-        lbl_instruccion.pack(side="left", padx= 5)
+        # Colores
+        bg_color = "#f0f4f8"
+        azul = "#3498db"
+        verde = "#27ae60"
+        naranja = "#e67e22"
+        gris_oscuro = "#2c3e50"
         
-        self.entry_matricula = ttk.Entry(frame_manual, width=20 )
-        self.entry_matricula.pack(side="left", padx=5)
+        style.configure("TFrame", background=bg_color)
+        style.configure("TLabel", background=bg_color, font=("Segoe UI", 10))
+        style.configure("Header.TLabel", font=("Segoe UI", 13, "bold"), foreground=gris_oscuro)
         
-        #--Carga de archivos--
-        frame_archvios = ttk.LabelFrame(self.root, text="Archivos escogidos ", padding=10)
-        frame_archvios.pack(fill="both", expand=True, padx=15, pady=5)
+        # Botones del Menú
+        style.configure("Manual.BigBtn.TButton", font=("Segoe UI", 10, "bold"), background=azul, foreground="white")
+        style.configure("File.BigBtn.TButton", font=("Segoe UI", 10, "bold"), background=verde, foreground="white")
         
-        #--Botón para cargar archivos--
-        btn_cargar = ttk.Button(frame_archvios, text="Seleccionar archivos", command=self.cargar_archivos)
-        btn_cargar.pack(fill="x", pady=5)
+        # Botón Volver (Gris)
+        style.configure("Back.TButton", font=("Segoe UI", 8), background="#7f8c8d", foreground="white", borderwidth=0)
         
-        #--Lista visual
-        self.lista_archivos = tk.Listbox(frame_archvios, height=8, selectmode = tk.EXTENDED)
-        self.lista_archivos.pack(fill="both", expand=True, pady=5)
+        # Botón Acción
+        style.configure("Action.TButton", font=("Segoe UI", 9, "bold"), background=naranja, foreground="white")
         
-        #--Botón Limpiar
-        btn_limpiar = ttk.Button(frame_archvios, text="Limpiar Lista", command= self.limpiar_lista)
-        btn_limpiar.pack(fill="x", pady=5)
+        # Efectos Hover (ratón encima)
+        style.map("Manual.BigBtn.TButton", background=[('active', '#2980b9')])
+        style.map("File.BigBtn.TButton", background=[('active', '#219653')])
+        style.map("Back.TButton", background=[('active', '#95a5a6')])
+
+
+    def crear_pagina_inicio(self):
+        frame = ttk.Frame(self.contenedor)
         
-        #Botón principal
-        self.btn_procesar = ttk.Button(self.root, text="Procesar Datos", command=self.iniciar_procesamiento)
-        self.btn_procesar.pack(fill="x",padx=15, pady=15, side="bottom")
+        ttk.Label(frame, text="Sistema de Matrículas", style="Header.TLabel").pack(pady=(15,5))
+        ttk.Label(frame, text="Seleccione una opción:").pack(pady=(0, 15))
+
+        btn_manual = ttk.Button(frame, text="✍️ Ingreso Manual", style="Manual.BigBtn.TButton",
+                                command=self.ir_a_manual)
+        btn_manual.pack(pady=5, padx=40)
+
+        btn_files = ttk.Button(frame, text="📁 Carga de Archivos", style="File.BigBtn.TButton",
+                               command=self.ir_a_archivos)
+        btn_files.pack(pady=5, padx=40)
         
-    def cargar_archivos(self):
-        #Abrir el explorador archivos
-        rutas = filedialog.askopenfile(
-            title="Seleccionar archivos",
-            filetypes=[("Todos","*.*"), ("Excel/CSV/Txt", "*.xlsx *.csv *.txt")])
+        return frame
+
+    def crear_pagina_manual(self):
+        frame = ttk.Frame(self.contenedor)
         
-        if rutas:
-            for ruta in rutas:
-                if ruta not in self.archivos_seleccionados:
-                    self.archivos_seleccionados.append(ruta)
-                    
-                    nombre_archivo = os.path.basename(ruta)
-                    self.lista_archivos.insert(ttk.END, nombre_archivo)
-                    
-                    
+        btn_volver = ttk.Button(frame, text="⬅ Volver", style="Back.TButton",
+                                command=self.ir_a_inicio)
+        btn_volver.pack(anchor="w", pady=(0, 10))
+
+        ttk.Label(frame, text="Ingreso Manual", style="Header.TLabel").pack(pady=5)
+        
+        self.entry_manual = ttk.Entry(frame, font=("Consolas", 12), justify='center')
+        self.entry_manual.pack(pady=10, ipady=3)
+
+        ttk.Button(frame, text="PROCESAR", style="Action.TButton",
+                   command=self.procesar_manual).pack(pady=16, fill="x", padx=80)
+
+        return frame
+
+    def crear_pagina_archivos(self):
+        frame = ttk.Frame(self.contenedor)
+        
+        btn_volver = ttk.Button(frame, text="⬅ Volver", style="Back.TButton",
+                                command=self.ir_a_inicio)
+        btn_volver.pack(anchor="w", pady=(0, 10))
+
+        ttk.Label(frame, text="Carga Masiva", style="Header.TLabel").pack(pady=(0,10))
+
+        self.lista_archivos = tk.Listbox(frame, width= 45, height=6, bd=0, highlightthickness=1)
+        self.lista_archivos.pack(pady=(0,10))
+
+        # Botones laterales de la lista
+        frame_btns = tk.Frame(frame, bg="#f0f4f8")
+        frame_btns.pack(pady=(0,15))
+        
+        btn_add = ttk.Button(frame_btns, text="Agregar archivos", command=self.cargar_archivos_dialog)
+        btn_add.pack(side="left", padx=5) # padx separa los botones entre sí
+        
+        # Botón Eliminar (Texto completo)
+        btn_del = ttk.Button(frame_btns, text="Limpiar lista", command=self.limpiar_lista)
+        btn_del.pack(side="left", padx=5)
+
+        # 3. Botón Procesar (Al final)
+        ttk.Button(frame, text="PROCESAR ARCHIVOS", style="Action.TButton",
+                   command=self.procesar_archivos).pack(fill="x", padx=60)
+
+        return frame
+
+
+    def cargar_archivos_dialog(self):
+        rutas = filedialog.askopenfilenames(title="Seleccionar archivos")
+        for ruta in rutas:
+            if ruta not in self.archivos_seleccionados:
+                self.archivos_seleccionados.append(ruta)
+                self.lista_archivos.insert(tk.END, os.path.basename(ruta))
+
     def limpiar_lista(self):
         self.archivos_seleccionados = []
         self.lista_archivos.delete(0, tk.END)
-        
-    def iniciar_procesamiento(self):
-        matricula_texto = self.entry_matricula.get().strip()
-        lista_rutas = self.archivos_seleccionados
-        
-        if not matricula_texto and not lista_rutas:
-            messagebox.showwarning("Escribe una matricula o carga un archivo")
-            
-        self.btn_procesar.config(state="disabled",text="Enviando...")
-        self.root.upadte()
-        
-        try:
-            # Llamamos a la función que conecta con tu código externo
-            self.enviar_al_backend(matricula_texto, lista_rutas)
-            
-            messagebox.showinfo("Listo", "Datos enviados correctamente.")
-            
-            # Limpieza opcional
-            self.entry_matricula.delete(0, tk.END)
-            self.limpiar_lista()
-            
-        except Exception as error:
-            messagebox.showerror("Error", f"Algo falló: {error}")
-        finally:
-            # Pase lo que pase, reactivamos el botón al final
-            self.btn_procesar.config(state="normal", text="PROCESAR DATOS")
 
-    # 4. CONEXIÓN CON TU BACKEND
-    def enviar_al_backend(self, matricula, archivos):
-        """
-        Esta función recibe los datos limpios de la interfaz.
-        Aquí es donde pegas tu lógica o importas tu otro script.
-        """
-        print("--- CONECTANDO CON BACKEND ---")
-        if matricula:
-            print(f"Backend recibió matrícula manual: {matricula}")
-            # Ejemplo: mi_backend.buscar_matricula(matricula)
-        
-        if archivos:
-            print(f"Backend recibió {len(archivos)} archivos para leer.")
-            # Ejemplo: mi_backend.procesar_excels(archivos)
+    def procesar_manual(self):
+        dato = self.entry_manual.get()
+        if dato:
+            self.enviar_backend("manual", dato)
+            messagebox.showinfo("OK", f"Enviado: {dato}")
 
+    def procesar_archivos(self):
+        if self.archivos_seleccionados:
+            self.enviar_backend("archivos", self.archivos_seleccionados)
+            messagebox.showinfo("OK", "Archivos enviados")
+
+    def enviar_backend(self, tipo, datos):
+        print(f"Enviando al backend -> Tipo: {tipo} | Datos: {datos}")
 
 if __name__ == "__main__":
-    # Creamos la ventana raíz 
-    ventana_principal = tk.Tk()
-    
-    # Opcional: Le ponemos un tema visual moderno
-    estilo = ttk.Style()
-    estilo.theme_use('clam') 
-    
-    # "Instanciamos" nuestra clase. Aquí nace 'self'.
-    mi_app = AppMatriculas(ventana_principal)
-    
-    # El bucle infinito que mantiene la ventana abierta esperando clics
-    ventana_principal.mainloop()            
-        
+    root = tk.Tk()
+    app = AppMatriculas(root)
+    root.mainloop()
