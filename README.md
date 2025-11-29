@@ -46,7 +46,7 @@ Permite trabajar tanto con **matrículas ESPOL** como con **cadenas genéricas**
 
 Archivos principales (los nombres pueden variar según tu repositorio):
 
-- `main.py` → Ventana principal (`AppMatriculas`) y lógica de la interfaz.
+- `frames.py` → Ventana principal y lógica de la interfaz.
 - `codificacion.py` → Algoritmos de codificación (clásico).
 - `decodificacion.py` → Algoritmos de decodificación (clásico).
 - `algoritmos.py` → Función `procesarXOR` y otros auxiliares.
@@ -54,9 +54,6 @@ Archivos principales (los nombres pueden variar según tu repositorio):
 - `contextoDecodificar.py` → Implementación del patrón Strategy para decodificar.
 - `utils.py` → Utilidades (por ejemplo, `es_matricula_valida`, etc.).
 - `archivos.py` → Funciones para leer y escribir archivos (`leer_lineas_archivo`, `guardar_archivo_salida`, etc.).
-
-> Ajusta los nombres en esta sección según cómo tengas organizados tus módulos.
-
 ---
 
 ## 🔧 Requisitos
